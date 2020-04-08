@@ -24,7 +24,7 @@ alias vim="vim -u ~/.nvimrc"
 
 # extended git aliases
 alias grp="git remote prune"
-alias yeapa="ssh yeapa@104.248.128.243"
+alias yeapa="cd ~/code/yeapa/yeapa/"
 
 # Use Ctrl-z to switch between vim and cli
 fancy-ctrl-z () {
@@ -50,10 +50,14 @@ else
 fi
 
 export ANDROID_HOME=$HOME/Android/Sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 export PATH=$PATH:/usr/lib/postgresql/9.5/bin
+export PATH=$PATH:$HOME/development/flutter/bin
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

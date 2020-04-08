@@ -5,69 +5,41 @@ filetype off                    " required!
 call plug#begin('~/.vim/plugged')
 
 " UI Plugins
-Plug 'tyrannicaltoucan/vim-quantum', { 'commit': '18be01e' }
-Plug 'ctrlpvim/ctrlp.vim'
-Plug 'bling/vim-airline', { 'commit': '470e9870f13830580d1938a2dae1be5b6e43d92a' }
-Plug 'vim-airline/vim-airline-themes'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+Plug 'itchyny/lightline.vim'
 Plug 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind'] }
-Plug 'chriskempson/base16-vim'
-Plug 'kristijanhusak/vim-hybrid-material'
-Plug 'mhartington/oceanic-next'
-Plug 'hzchirs/vim-material'
+Plug 'morhetz/gruvbox'
 
 " Git
 Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 
-" Snippets
-Plug 'sirver/ultisnips'
-Plug 'honza/vim-snippets'
-Plug 'epilande/vim-es2015-snippets'
-Plug 'epilande/vim-react-snippets'
-
 " Autocomplete
-Plug 'marijnh/tern_for_vim', { 'do': 'npm install' }
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --tern-completer' }
+Plug 'neoclide/coc.nvim', {'branch': 'release', 'do': { -> coc#util#install()}}
 
 " Misc
 Plug 'editorconfig/editorconfig-vim'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
-Plug 'scrooloose/syntastic'
 Plug 'tmux-plugins/vim-tmux'
 Plug 'tmux-plugins/vim-tmux-focus-events'
-Plug 'jparise/vim-graphql'
 Plug 'martinda/Jenkinsfile-vim-syntax'
-Plug 'prettier/vim-prettier', { 'do': 'npm install', 'for': ['javascript', 'graphql'] }
+
+" Flutter
+Plug 'dart-lang/dart-vim-plugin'
+Plug 'thosakwe/vim-flutter'
 
 " JS
-Plug 'moll/vim-node', { 'for': 'javascript' }
-Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
-Plug 'jelera/vim-javascript-syntax', { 'for': 'javascript' }
-Plug 'tbrisbout/vim-babeljs', { 'for': 'javascript' }
-Plug 'mxw/vim-jsx', { 'for': 'javascript' }
-Plug 'elzr/vim-json', { 'for': 'json' }
-Plug 'Galooshi/vim-import-js', { 'do': 'npm i -g import-js' }
-
-" Typescript
-Plug 'Quramy/tsuquyomi'
-Plug 'leafgarland/typescript-vim'
-Plug 'Quramy/vim-js-pretty-template'
-Plug 'jason0x43/vim-js-indent'
-Plug 'Quramy/vim-dtsm'
-Plug 'mhartington/vim-typings'
-Plug 'Shougo/unite.vim'
-Plug 'ianks/vim-tsx'
+Plug 'ludovicchabant/vim-gutentags'
+Plug 'kristijanhusak/vim-js-file-import', {'do': 'npm install'}
+Plug 'sheerun/vim-polyglot'
 
 " Languages Utils
-Plug 'elmcast/elm-vim', { 'for': 'elm' }
-Plug 'cohama/lexima.vim'
 Plug 'alvan/vim-closetag'
-Plug 'kylef/apiblueprint.vim'
 
 " Writing
-Plug 'reedes/vim-wordy', { 'for': 'markdown' }
 Plug 'junegunn/goyo.vim', { 'for': 'markdown' }
 Plug 'junegunn/limelight.vim', { 'for': 'markdown' }
 
@@ -75,12 +47,37 @@ call plug#end()
 filetype plugin indent on       " load file type plugins + indentation
 
 syntax enable
+set laststatus=2
 
 set termguicolors
-colorscheme quantum
 let base16colorspace=256
-let g:airline_theme='quantum'
-let g:airline_powerline_fonts = 1
+
+if !has('gui_running')
+  set t_Co=256
+endif
+
+set noshowmode
+
+" Theme
+set background=dark
+let g:gruvbox_italic=1
+colorscheme gruvbox
+let g:gruvbox_contrast_dark='hard'
+function! CocCurrentFunction()
+  return get(b:, 'coc_current_function', '')
+endfunction
+
+let g:lightline = {
+      \ 'colorscheme': 'gruvbox',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'cocstatus', 'currentfunction', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'cocstatus': 'coc#status',
+      \   'currentfunction': 'CocCurrentFunction'
+      \ },
+      \ }
 
 "" Whitespace
 set nowrap                      " don't wrap lines
@@ -100,9 +97,6 @@ set grepprg=ag\ --nogroup\ --nocolor
 "" Status Bar
 set ruler                       " show the cursor position all the time
 set showcmd                     " display incomplete commands
-set laststatus=2                " show status line all the time
-let g:airline_left_sep=''
-let g:airline_right_sep=''
 
 "" GUI Stuff
 set number                      " Display line number
@@ -110,20 +104,7 @@ set showmatch                   " Show matching brackets.
 set cursorline
 set splitbelow splitright       " More natural split
 set relativenumber
-
-" Linting
-let g:jsx_ext_required = 0
-let g:syntastic_javascript_checkers = ['eslint']
-let g:syntastic_javascript_eslint_exec = './node_modules/.bin/eslint'
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_quiet_messages = { "!level": "errors" }
-
-" Elm stuff
-let g:elm_format_autosave = 1
-let g:elm_syntastic_show_warnings = 1
-let g:ycm_semantic_triggers = { 'elm' : ['.'] }
+set colorcolumn=120
 
 " Avoid backup files~
 set nobackup
@@ -134,14 +115,6 @@ set autoread
 set hidden
 
 let g:closetag_filenames = '*.html,*.xml,*.js'
-
-let g:prettier#autoformat = 0
-let g:prettier#config#parser = 'babylon'
-let g:prettier#config#semi = 'false'
-let g:prettier#config#print_width = 120
-let g:prettier#config#single_quote = 'true'
-let g:prettier#config#bracket_spacing = 'false'
-
 
 " Keyboards Shortcuts
 set mouse=a
@@ -184,20 +157,12 @@ vnoremap <leader>lg c(console.log(<esc>pa), )<esc>P
 nmap <Leader>c gcc
 vmap <Leader>c gc
 
-let g:UltiSnipsExpandTrigger="<c-l>"
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-
-" Move to the next buffer
+" navigate buffers
 nnoremap <leader>l :bnext<CR>
-
-" Move to the previous buffer
 nnoremap <leader>h :bprevious<CR>
 
 " Delete current buffer
 nnoremap <leader>bd :bd<CR>
-
-" Open buffer list
-nnoremap <leader><leader> :CtrlPBuffer<cr>
 
 " Exit insert mode faster
 inoremap jj <Esc>
@@ -228,12 +193,105 @@ silent! nnoremap <Leader>gr :GitGutterRevertHunk<CR>
 set wildmenu
 set wildmode=list:longest,full
 " Path ignore (wildmenu, ctrlp..)
-set wildignore+=*/.git/*,*/node_modules/*,*/bower_components/*,*/dist/*,*/elm-stuff/*
+set wildignore+=*/.git/*
+set wildignore+=*/node_modules/*
+set wildignore+=*/bower_components/*
+set wildignore+=*/dist/*
+set wildignore+=*package-lock.json
+set wildignore+=*yarn.lock
 
 " Escape to Normal mode in Nvim terminal
-if has('nvim')
-  tnoremap <Esc> <C-\><C-n>
+if has("nvim")
+  au TermOpen * tnoremap <Esc> <c-\><c-n>
+  au FileType fzf tunmap <Esc>
 endif
+
+" Coc.vim
+nmap <silent> <leader>dd <Plug>(coc-definition)
+nmap <silent> <leader>dr <Plug>(coc-references)
+nmap <silent> <leader>dj <Plug>(coc-implementation)
+
+" FZF
+if has('nvim') || has('gui_running')
+  let $FZF_DEFAULT_COMMAND = 'ag -l --nocolor --hidden -g ""'
+  let $FZF_DEFAULT_OPTS .= ' --inline-info'
+endif
+
+" Hide statusline of terminal buffer
+autocmd! FileType fzf
+autocmd  FileType fzf set laststatus=0 noshowmode noruler
+  \| autocmd BufLeave <buffer> set laststatus=2 showmode ruler
+
+
+let g:fzf_action = {
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
+let g:fzf_colors =
+\ { 'fg':      ['fg', 'Normal'],
+  \ 'bg':      ['bg', 'Normal'],
+  \ 'hl':      ['fg', 'Comment'],
+  \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+  \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
+  \ 'hl+':     ['fg', 'Statement'],
+  \ 'info':    ['fg', 'PreProc'],
+  \ 'border':  ['fg', 'Ignore'],
+  \ 'prompt':  ['fg', 'Conditional'],
+  \ 'pointer': ['fg', 'Exception'],
+  \ 'marker':  ['fg', 'Keyword'],
+  \ 'spinner': ['fg', 'Label'],
+  \ 'header':  ['fg', 'Comment'] }
+
+command! -bang -nargs=? -complete=dir Files
+  \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+
+nnoremap <C-p> :Files<Cr>
+nnoremap <silent> <Leader>C        :Colors<CR>
+nnoremap <silent> <Leader><Leader> :Buffers<CR>
+nnoremap <silent> <Leader>L        :Lines<CR>
+command! -bang -nargs=* Ag
+  \ call fzf#vim#ag(<q-args>,
+  \                 <bang>0 ? fzf#vim#with_preview('up:60%')
+  \                         : fzf#vim#with_preview('right:50%:hidden', '?'),
+  \                 <bang>0)
+nnoremap <silent> <Leader>ag       :Ag <C-R><C-W><CR>
+nnoremap <silent> <Leader>AG       :Ag <C-R><C-A><CR>
+xnoremap <silent> <Leader>ag       y:Ag <C-R>"<CR>
+nnoremap <silent> <Leader>`        :Marks<CR>
+
+inoremap <expr> <c-x><c-t> fzf#complete('tmuxwords.rb --all-but-current --scroll 498 --min 5')
+imap <c-x><c-k> <plug>(fzf-complete-word)
+imap <c-x><c-f> <plug>(fzf-complete-path)
+inoremap <expr> <c-x><c-d> fzf#vim#complete#path('blsd')
+imap <c-x><c-j> <plug>(fzf-complete-file-ag)
+imap <c-x><c-l> <plug>(fzf-complete-line)
+
+" Flutter
+nnoremap <leader>fa :FlutterRun<cr>
+nnoremap <leader>fq :FlutterQuit<cr>
+nnoremap <leader>fr :FlutterHotReload<cr>
+nnoremap <leader>fR :FlutterHotRestart<cr>
+nnoremap <leader>fD :FlutterVisualDebug<cr>
+
+function! s:plug_help_sink(line)
+  let dir = g:plugs[a:line].dir
+  for pat in ['doc/*.txt', 'README.md']
+    let match = get(split(globpath(dir, pat), "\n"), 0, '')
+    if len(match)
+      execute 'tabedit' match
+      return
+    endif
+  endfor
+  tabnew
+  execute 'Explore' dir
+endfunction
+
+command! PlugHelp call fzf#run(fzf#wrap({
+  \ 'source': sort(keys(g:plugs)),
+  \ 'sink':   function('s:plug_help_sink')}))
+
+command! W w
+command! Q q
 
 " AutoCorrect typos in Insert Mode
 iabbrev lenght length
@@ -242,12 +300,53 @@ iabbrev widht width
 iabbrev fucntion function
 iabbrev funciton function
 
-autocmd! User GoyoEnter Limelight
-autocmd! User GoyoLeave Limelight!
+function! s:goyo_enter()
+  if executable('tmux') && strlen($TMUX)
+    silent !tmux set status off
+    silent !tmux list-panes -F '\#F' | grep -q Z || tmux resize-pane -Z
+  endif
+  set noshowmode
+  set noshowcmd
+  set scrolloff=999
+  set nocursorline
+  set tw=115
+  Limelight0.8
+  " ...
+endfunction
+
+function! s:goyo_leave()
+  if executable('tmux') && strlen($TMUX)
+    silent !tmux set status on
+    silent !tmux list-panes -F '\#F' | grep -q Z && tmux resize-pane -Z
+  endif
+  set showmode
+  set showcmd
+  set scrolloff=5
+  set cursorline
+  set tw=0
+  Limelight!
+  " ...
+endfunction
+
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? coc#_select_confirm() :
+      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+let g:coc_snippet_next = '<tab>'
+
+autocmd! User GoyoEnter nested call <SID>goyo_enter()
+autocmd! User GoyoLeave nested call <SID>goyo_leave()
 
 augroup vimrc_autocmds
   autocmd!
-  autocmd BufWritePre *.js Prettier
+  autocmd! FileType fzf tnoremap <buffer> <esc> <c-c>
   autocmd BufNewFile,BufRead *.md set filetype=markdown
   autocmd BufNewFile,BufRead .{babel,eslint}rc set filetype=json
 
@@ -257,5 +356,4 @@ augroup vimrc_autocmds
   autocmd Filetype xls setlocal noexpandtab
   autocmd BufEnter * set completeopt-=preview
   autocmd FileType javascript setlocal makeprg=node\ %
-  autocmd Filetype elm setlocal makeprg=elm-make\ %
 augroup END
